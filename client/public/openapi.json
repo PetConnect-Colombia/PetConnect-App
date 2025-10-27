@@ -1,0 +1,357 @@
+{
+  "openapi" : "3.1.0",
+  "components" : {
+    "schemas" : {
+      "QRRequestParse" : {
+        "type" : "object",
+        "required" : [ "qrData" ],
+        "description" : "Representa la data extraida del QR",
+        "properties" : {
+          "qrData" : {
+            "type" : "string",
+            "examples" : [ "000211010201" ],
+            "pattern" : "\\S",
+            "description" : "String extraido del QR"
+          }
+        }
+      },
+      "QrRequest" : {
+        "type" : "object",
+        "required" : [ "multiKeyGui", "multiKey", "merchantName", "channel", "merchantNameAlternative", "merchantCityAlternative" ],
+        "description" : "Representa la data del QR",
+        "properties" : {
+          "multiKeyGui" : {
+            "type" : "string",
+            "examples" : [ "01" ],
+            "pattern" : "\\S",
+            "description" : "Tipo de llave para la transacción"
+          },
+          "multiKey" : {
+            "type" : "string",
+            "examples" : [ "3134253659" ],
+            "pattern" : "\\S",
+            "description" : "Llave Bre-b para la transacción (Depende del campo anterior)"
+          },
+          "merchantCode" : {
+            "type" : "string",
+            "examples" : [ "5811" ],
+            "description" : "Código del comercio"
+          },
+          "merchantCodeAccount" : {
+            "type" : "string",
+            "examples" : [ "5811" ],
+            "description" : "Código del comercio agregador"
+          },
+          "merchantCategoryCode" : {
+            "type" : "string",
+            "minLength" : 4,
+            "examples" : [ "5811" ],
+            "maxLength" : 4,
+            "description" : "Código de categoria del comercio debe ser de 4 caracteres (ISO 18245)"
+          },
+          "country" : {
+            "type" : "string",
+            "minLength" : 2,
+            "examples" : [ "CO" ],
+            "maxLength" : 2,
+            "description" : "Código de país debe ser de 2 caracteres (ISO 3166-1 alpha-2)"
+          },
+          "merchantName" : {
+            "type" : "string",
+            "examples" : [ "Nombre y apellido" ],
+            "maxLength" : 25,
+            "pattern" : "\\S",
+            "description" : "Nombre del comercio no debe exceder 25 caracteres"
+          },
+          "merchantCity" : {
+            "type" : "string",
+            "examples" : [ "Ciudad 1" ],
+            "maxLength" : 15,
+            "description" : "Ciudad del comercio no debe exceder 15 caracteres"
+          },
+          "postalCode" : {
+            "type" : "string",
+            "examples" : [ "111061" ],
+            "maxLength" : 10,
+            "description" : "Código postal"
+          },
+          "channel" : {
+            "type" : "string",
+            "examples" : [ "APP" ],
+            "maxLength" : 3,
+            "pattern" : "\\S",
+            "description" : "Canal para el comercio no debe exceder 15 caracteres"
+          },
+          "conditionIva" : {
+            "type" : "string",
+            "examples" : [ "" ],
+            "description" : "Campo para el condicional del IVA"
+          },
+          "iva" : {
+            "type" : "string",
+            "examples" : [ "19" ],
+            "description" : "Campo para el valor o porcentaje del impuesto del IVA"
+          },
+          "baseIva" : {
+            "type" : "string",
+            "examples" : [ "00" ],
+            "description" : "Campo para el valor de la base del IVA"
+          },
+          "conditionalInc" : {
+            "type" : "string",
+            "examples" : [ "00" ],
+            "description" : "Campo para el condicional de impuesto INC"
+          },
+          "inc" : {
+            "type" : "string",
+            "examples" : [ "00" ],
+            "description" : "Campo para el valor o porcentaje del impuesto del INC"
+          },
+          "consecutiveTransaction" : {
+            "type" : "string",
+            "examples" : [ "000000" ],
+            "description" : "Campo para el consecutivo de la transacción"
+          },
+          "codeService" : {
+            "type" : "string",
+            "examples" : [ "000000" ],
+            "description" : "Campo reservado para el código de servicio en operaciones de recaudo o recarga"
+          },
+          "referenceCollection" : {
+            "type" : "string",
+            "examples" : [ "000000" ],
+            "description" : "Campo reservado para la referecia de pago o celular en operaciones de Recaudo o Recarga"
+          },
+          "productTypeCollection" : {
+            "type" : "string",
+            "examples" : [ "000000" ],
+            "description" : "Campo reservado para el tipo de producto en operaciones de Recaudo o Recarga"
+          },
+          "sourceAccount" : {
+            "type" : "string",
+            "examples" : [ "000000" ],
+            "maxLength" : 21,
+            "description" : "Campo reservado para cuenta de origen en op de referencia"
+          },
+          "destinationAccount" : {
+            "type" : "string",
+            "examples" : [ "000000" ],
+            "maxLength" : 21,
+            "description" : "Campo reservado para cuenta de destino en op de referencia"
+          },
+          "referenceAditional" : {
+            "type" : "string",
+            "examples" : [ "1222222" ],
+            "description" : "Campo reservado para referencia adicional de cuenta de destino en op de referencia"
+          },
+          "productTypeTransfer" : {
+            "type" : "string",
+            "examples" : [ "01" ],
+            "maxLength" : 2,
+            "description" : "Campo reservado para el tipo de producto en op de referencia"
+          },
+          "discountApplication" : {
+            "type" : "string",
+            "examples" : [ "01" ],
+            "maxLength" : 2,
+            "description" : "Campo usado para la aplicación de decisión sobre descuento"
+          },
+          "lenguajePreference" : {
+            "type" : "string",
+            "examples" : [ "CO" ],
+            "maxLength" : 2,
+            "description" : "Subcampo para identificar idioma de preferencia"
+          },
+          "merchantNameAlternative" : {
+            "type" : "string",
+            "examples" : [ "Nombre y apellido" ],
+            "maxLength" : 25,
+            "description" : "Nombre del comercio no debe exceder 25 caracteres"
+          },
+          "merchantCityAlternative" : {
+            "type" : "string",
+            "examples" : [ "Nombre ciudad" ],
+            "maxLength" : 15,
+            "description" : "Nombre de la ciudad no debe exceder 15 caracteres"
+          },
+          "billingNumber" : {
+            "type" : "string",
+            "examples" : [ "212" ],
+            "maxLength" : 25,
+            "description" : "Número de Factura indicado por el comercio"
+          },
+          "cellphone" : {
+            "type" : "string",
+            "examples" : [ "212" ],
+            "maxLength" : 25,
+            "pattern" : "\\d{10}",
+            "description" : "Número de celular para op financiera"
+          },
+          "storeLabel" : {
+            "type" : "string",
+            "examples" : [ "212" ],
+            "maxLength" : 25,
+            "description" : "Distintivo asociado al comercio como CU"
+          },
+          "loyaltynumber" : {
+            "type" : "string",
+            "examples" : [ "212" ],
+            "maxLength" : 25,
+            "description" : "Número para identificación de fidelización"
+          },
+          "referenceLabel" : {
+            "type" : "string",
+            "examples" : [ "212" ],
+            "maxLength" : 25,
+            "description" : "Consecutivo de la transacción"
+          },
+          "customerLabel" : {
+            "type" : "string",
+            "examples" : [ "212" ],
+            "maxLength" : 25,
+            "description" : "Número de identificación del cliente"
+          },
+          "terminal" : {
+            "type" : "string",
+            "examples" : [ "001" ],
+            "description" : "Terminal"
+          },
+          "porposeTransaction" : {
+            "type" : "string",
+            "examples" : [ "00" ],
+            "maxLength" : 25,
+            "description" : "Propósito de la transacción"
+          },
+          "additionalDataCustomer" : {
+            "type" : "string",
+            "examples" : [ "00" ],
+            "maxLength" : 3,
+            "description" : "Datos por solicitar al consumidor"
+          },
+          "merchantTax" : {
+            "type" : "string",
+            "examples" : [ "00" ],
+            "maxLength" : 20,
+            "description" : "Nit del comercio"
+          },
+          "currency" : {
+            "type" : "string",
+            "minLength" : 3,
+            "examples" : [ "820" ],
+            "maxLength" : 3,
+            "pattern" : "\\d{3}",
+            "description" : "Código de moneda debe ser un número de 3 dígitos (ISO 4217)"
+          },
+          "amount" : {
+            "type" : "number",
+            "examples" : [ 202000 ],
+            "maxLength" : 13,
+            "pattern" : "^\\d{1,10}([.]\\d{1,2})?$",
+            "description" : "Monto de a transacción"
+          },
+          "convenienceIndicator" : {
+            "type" : "string",
+            "minLength" : 2,
+            "examples" : [ "01" ],
+            "maxLength" : 2,
+            "description" : "Campo para identificar el indicador de propina"
+          },
+          "convenienceValue" : {
+            "type" : "string",
+            "examples" : [ "01" ],
+            "maxLength" : 13,
+            "description" : "Campo para identificar el valor de la propina"
+          },
+          "conveniencePercentage" : {
+            "type" : "string",
+            "examples" : [ "01" ],
+            "maxLength" : 5,
+            "description" : "Campo para identificar el porcentaje de la propina"
+          }
+        }
+      }
+    }
+  },
+  "tags" : [ {
+    "name" : "QR",
+    "description" : "Operaciones relacionadas con el QR"
+  }, {
+    "name" : "Salud del servicio",
+    "description" : "Servicios para verificar la salud del servicio"
+  } ],
+  "paths" : {
+    "/api/health" : {
+      "get" : {
+        "summary" : "Operacion de salud del servicio",
+        "description" : "Este endpoint verifica la salud del servicio.",
+        "tags" : [ "Salud del servicio" ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/qr/generate" : {
+      "post" : {
+        "summary" : "Genera un QR",
+        "description" : "Este endpoint permite generar un código QR y lo retorna en base64.",
+        "operationId" : "generateQR",
+        "tags" : [ "QR" ],
+        "requestBody" : {
+          "description" : "Objeto de solicitud para generar QR",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/QrRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/v1/qr/parse" : {
+      "post" : {
+        "tags" : [ "QR" ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/QRRequestParse"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : { }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request"
+          }
+        },
+        "summary" : "Parse QR"
+      }
+    }
+  },
+  "info" : {
+    "title" : "Microservicio QR",
+    "version" : "1.0.0-SNAPSHOT"
+  }
+}
