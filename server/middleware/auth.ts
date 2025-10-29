@@ -1,45 +1,66 @@
-/**
- * auth.ts
- * Middleware para autenticar y autorizar rutas con JWT.
- */
+import { Request, Response, NextFunction } from 'express';
+import { verifyToken, JwtPayload } from '../utils/jwt';
 
-import { Request, Response, NextFunction } from 'express'
-import { verifyToken, JwtPayloadLite } from '../utils/jwt'
-
+// Extendemos el tipo Request de Express para añadir la propiedad `user`
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayloadLite
+      user?: JwtPayload;
     }
   }
 }
 
-/** Extrae el token del header Authorization: Bearer ... */
-function getToken(req: Request) {
-  const header = req.headers.authorization
-  if (!header) return null
-  const [type, token] = header.split(' ')
-  if (type !== 'Bearer' || !token) return null
-  return token
+/**
+ * Extrae el token del encabezado de autorización 'Bearer ...'.
+ * @param req La solicitud de Express.
+ * @returns El token si existe, de lo contrario null.
+ */
+function getTokenFromHeader(req: Request): string | null {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const [type, token] = authHeader.split(' ');
+  if (type !== 'Bearer' || !token) {
+    return null;
+  }
+
+  return token;
 }
 
-/** Requiere usuario autenticado */
+/**
+ * Middleware para requerir un usuario autenticado.
+ * Verifica el JWT y adjunta el payload a `req.user`.
+ */
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const token = getToken(req)
-  if (!token) return res.status(401).json({ message: 'Usuario No autenticado' })
+  const token = getTokenFromHeader(req);
+  if (!token) {
+    return res.status(401).json({ message: 'No autenticado. Se requiere token.' });
+  }
+
   try {
-    const payload = verifyToken(token)
-    req.user = payload
-    next()
-  } catch {
-    return res.status(401).json({ message: 'Token inválido' })
+    const payload = verifyToken(token);
+    req.user = payload;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Token inválido o expirado.' });
   }
 }
 
-/** Requiere rol admin */
+/**
+ * Middleware para requerir que el usuario autenticado tenga el rol de 'admin'.
+ * Debe usarse siempre *después* de `requireAuth`.
+ */
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.user) return res.status(401).json({ message: 'No autenticado' })
-  if (req.user.role !== 'admin') return res.status(403).json({ message: 'No autorizado' })
-  next()
-}
+  if (!req.user) {
+    // Esto no debería ocurrir si `requireAuth` se usa primero
+    return res.status(401).json({ message: 'No autenticado.' });
+  }
 
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Acceso denegado. Se requiere rol de administrador.' });
+  }
+
+  next();
+}

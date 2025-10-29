@@ -14,44 +14,65 @@ export default function Dashboard() {
   if (!stats)
     return <p className="text-center py-8 text-gray-500">Sin datos aún</p>;
 
+  // Data for Pie Chart (Pet Status)
+  const petStatusData = [
+    { id: 0, value: stats.adoptedPets, label: "Adoptadas", color: "#7ED957" },
+    { id: 1, value: stats.availablePets, label: "Disponibles", color: "#3DD9D6" },
+    { id: 2, value: stats.inProcessPets, label: "En Proceso", color: "#FFA23C" },
+  ];
+
+  // Data for Bar Chart (Request Status)
+  const requestStatusData = [
+    { id: 0, value: stats.pendingRequests, label: "Pendientes", color: "#FFA23C" },
+    { id: 1, value: stats.approvedRequests, label: "Aprobadas", color: "#7ED957" },
+    { id: 2, value: stats.rejectedRequests, label: "Rechazadas", color: "#FF6B6B" },
+  ];
   return (
     <section className="p-8 bg-white/90 rounded-2xl shadow-xl mb-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-[#3DD9D6] mb-6">
         Dashboard de Administración
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-[#e0f7fa] rounded-xl p-6 flex flex-col items-center shadow">
           <span className="text-4xl font-bold text-[#3DD9D6]">
-            {stats.totalMascotas}
+            {stats.totalPets}
           </span>
-          <span className="text-gray-700 mt-2">Mascotas registradas</span>
-        </div>
-        <div className="bg-[#fff5e6] rounded-xl p-6 flex flex-col items-center shadow">
-          <span className="text-4xl font-bold text-[#FFA23C]">
-            {stats.totalSolicitudes}
-          </span>
-          <span className="text-gray-700 mt-2">Solicitudes totales</span>
+          <span className="text-gray-700 mt-2">Mascotas Registradas</span>
         </div>
         <div className="bg-[#e8fbe6] rounded-xl p-6 flex flex-col items-center shadow">
           <span className="text-4xl font-bold text-[#7ED957]">
-            {stats.solicitudesAceptadas}
+            {stats.adoptedPets}
           </span>
-          <span className="text-gray-700 mt-2">Solicitudes aceptadas</span>
+          <span className="text-gray-700 mt-2">Mascotas Adoptadas</span>
+        </div>
+        <div className="bg-[#fff5e6] rounded-xl p-6 flex flex-col items-center shadow">
+          <span className="text-4xl font-bold text-[#FFA23C]">
+            {stats.availablePets}
+          </span>
+          <span className="text-gray-700 mt-2">Mascotas Disponibles</span>
+        </div>
+        <div className="bg-[#ffe0f7] rounded-xl p-6 flex flex-col items-center shadow">
+          <span className="text-4xl font-bold text-[#D93DD6]">
+            {stats.inProcessPets}
+          </span>
+          <span className="text-gray-700 mt-2">Mascotas en Proceso</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-xl p-4 shadow flex flex-col items-center">
           <h3 className="text-lg font-semibold text-[#3DD9D6] mb-2">
-            Mascotas por especie
+            Mascotas por Especie
           </h3>
           <PieChart
             series={[
               {
                 data: [
-                  { id: 0, value: stats.perros, label: "Perros" },
-                  { id: 1, value: stats.gatos, label: "Gatos" },
+                  { id: 0, value: stats.petsByKind.Perro || 0, label: "Perros" },
+                  { id: 1, value: stats.petsByKind.Gato || 0, label: "Gatos" },
                 ],
                 innerRadius: 40,
                 paddingAngle: 2,
@@ -64,27 +85,44 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-xl p-4 shadow flex flex-col items-center">
           <h3 className="text-lg font-semibold text-[#3DD9D6] mb-2">
-            Estado de solicitudes
+            Estado de Solicitudes de Adopción
           </h3>
           <BarChart
             xAxis={[
               {
                 scaleType: "band",
-                data: ["Pendientes", "Aceptadas", "Rechazadas"],
+                data: requestStatusData.map(item => item.label),
               },
             ]}
             series={[
               {
-                data: [
-                  stats.solicitudesPendientes,
-                  stats.solicitudesAceptadas,
-                  stats.solicitudesRechazadas,
-                ],
-                color: "#3DD9D6",
+                data: requestStatusData.map(item => item.value),
               },
             ]}
             height={220}
           />
+        </div>
+      </div>
+
+      {/* Additional Request Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
+        <div className="bg-[#fff5e6] rounded-xl p-6 flex flex-col items-center shadow">
+          <span className="text-4xl font-bold text-[#FFA23C]">
+            {stats.pendingRequests}
+          </span>
+          <span className="text-gray-700 mt-2">Solicitudes Pendientes</span>
+        </div>
+        <div className="bg-[#e8fbe6] rounded-xl p-6 flex flex-col items-center shadow">
+          <span className="text-4xl font-bold text-[#7ED957]">
+            {stats.approvedRequests}
+          </span>
+          <span className="text-gray-700 mt-2">Solicitudes Aprobadas</span>
+        </div>
+        <div className="bg-[#fbe6e6] rounded-xl p-6 flex flex-col items-center shadow">
+          <span className="text-4xl font-bold text-[#FF6B6B]">
+            {stats.rejectedRequests}
+          </span>
+          <span className="text-gray-700 mt-2">Solicitudes Rechazadas</span>
         </div>
       </div>
     </section>

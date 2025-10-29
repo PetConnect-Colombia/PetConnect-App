@@ -31,6 +31,12 @@ export const usePets = () => {
     setPets(pets.map(p => (p._id === id ? pet : p)));
   };
 
+  // 🔹 Actualizar estado de mascota
+  const updatePetStatus = async (id: string, status: string, token?: string) => {
+    await updatePet(id, { status }, token);
+    loadPets(); // Re-fetch all pets to ensure state is updated
+  };
+
   // 🔹 Eliminar
   const removePet = async (id: string, token?: string) => {
     await deletePet(id, token);
@@ -41,5 +47,5 @@ export const usePets = () => {
     loadPets();
   }, []);
 
-  return { pets, loading, error, addPet, editPet, removePet, reload: loadPets };
+  return { pets, loading, error, addPet, editPet, removePet, updatePetStatus, reload: loadPets };
 };

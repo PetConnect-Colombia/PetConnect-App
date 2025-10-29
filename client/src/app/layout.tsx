@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
 import { LoaderProvider } from "./context/LoaderContext";
+import Footer from "./components/layout/footer.component";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,14 +27,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es" className="h-full">
       <head>
         <link rel="icon" href="/Logo.png" type="image/png" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col h-full`}>
         <AlertProvider>
           <LoaderProvider>
-            {children}
+            <AuthProvider>
+              <div className="flex-grow">
+                {children}
+              </div>
+              <Footer />
+            </AuthProvider>
           </LoaderProvider>
         </AlertProvider>
       </body>

@@ -3,35 +3,39 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
-import { useLoader } from '@/app/context/LoaderContext';
+import { useAuth } from '@/app/context/AuthContext';
 
 export default function Navbar() {
-  const { showLoader, hideLoader } = useLoader();
+  const { isAuthenticated, user, logout } = useAuth();
   const [open, setOpen] = useState(false);
 
-  const itemsNav = useMemo(
-    () => [
-      { id: 1, name: 'Catálogo', href: '/home/catalogo' },
-      { id: 2, name: 'Donaciones', href: '/home/donaciones' },
-      { id: 3, name: 'Cómo adoptar', href: '/home/como-adoptar' },
-      { id: 4, name: 'Blogs', href: '/home/blogs' },
-      { id: 5, name: 'Contacto', href: '/home/contacto' },
-      { id: 6, name: 'Admin', href: '/home/administrador' },
-    ],
-    []
-  );
+  const baseItems = [
+    { id: 0, name: 'Inicio', href: '/home' },
+    { id: 1, name: 'Catálogo', href: '/home/catalogo' },
+    { id: 2, name: 'Donaciones', href: '/home/donaciones' },
+    { id: 3, name: 'Cómo adoptar', href: '/home/como-adoptar' },
+    { id: 4, name: 'Blogs', href: '/home/blogs' },
+  ];
 
-  const handleCloseSession = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/auth/login';
+  const itemsNav = useMemo(() => {
+    const navItems = [...baseItems];
+    if (isAuthenticated && user?.role !== 'admin') {
+      navItems.push({ id: 7, name: 'Mi Perfil', href: '/profile' });
+    }
+    if (isAuthenticated && user?.role === 'admin') {
+      navItems.push({ id: 6, name: 'Admin', href: '/home/administrador' });
+    }
+    return navItems;
+  }, [isAuthenticated, user]);
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
   };
 
-
-  const handleClick = () => {
-    showLoader();
-    setTimeout(() => {
-      hideLoader();
-    }, 3000);
+  const handleLogin = () => {
+    window.location.href = '/auth/login';
+    setOpen(false);
   };
 
   return (
@@ -68,7 +72,7 @@ export default function Navbar() {
         </button>
 
         {/* Menu desktop */}
-        <div className="hidden md:flex gap-6 text-[#2D2D2D] font-medium">
+        <div className="hidden md:flex items-center gap-4 text-[#2D2D2D] font-medium">
           {itemsNav.map((item) => (
             <Link
               key={item.id}
@@ -79,10 +83,22 @@ export default function Navbar() {
               <span className="text-sm md:text-base">{item.name}</span>
             </Link>
           ))}
-          <button className='text-center py-1 px-2 text-red-500 hover:bg-red-100 hover:text-red-600 hover:cursor-pointer rounded-xl transition-colors duration-200'
-            onClick={handleCloseSession}>
-            Cerrar sesión
-          </button>
+          <div className="flex items-center gap-4">
+            {isAuthenticated && user ? (
+              <span className="text-gray-700">Hola, {user.name}</span>
+            ) : null}
+            {isAuthenticated ? (
+              <button className='text-center py-1 px-2 text-red-500 hover:bg-red-100 hover:text-red-600 hover:cursor-pointer rounded-xl transition-colors duration-200'
+                onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            ) : (
+              <button className='text-center py-1 px-2 text-white bg-[#3DD9D6] hover:bg-[#35c3c0] hover:cursor-pointer rounded-xl transition-colors duration-200'
+                onClick={handleLogin}>
+                Iniciar Sesión
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -100,10 +116,22 @@ export default function Navbar() {
               {item.name}
             </Link>
           ))}
-          <button className='text-center py-1 px-2 text-red-500 hover:bg-red-100 hover:text-red-600 hover:cursor-pointer rounded-xl transition-colors duration-200'
-          onClick={handleCloseSession}>
-            Cerrar sesión
-          </button>
+           <div className="flex flex-col items-center w-full gap-2 px-4">
+            {isAuthenticated && user ? (
+                <span className="text-gray-700 py-2">Hola, {user.name}</span>
+            ) : null}
+            {isAuthenticated ? (
+              <button className='w-full text-center py-2 text-red-500 hover:bg-red-100 hover:text-red-600 hover:cursor-pointer rounded transition-colors duration-200'
+                onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            ) : (
+              <button className='w-full text-center py-2 text-white bg-[#3DD9D6] hover:bg-[#35c3c0] hover:cursor-pointer rounded transition-colors duration-200'
+                onClick={handleLogin}>
+                Iniciar Sesión
+              </button>
+            )}
+          </div>
         </div>
       )}
 

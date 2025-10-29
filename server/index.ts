@@ -14,6 +14,9 @@ import { authRouter } from './routes/auth'
 import { petsRouter } from './routes/pets'
 import { blogsRouter } from './routes/blogs'
 import { donationsRouter } from './routes/donations'
+import { adoptionRequestsRouter } from './routes/adoptionRequests'
+import { statsRouter } from './routes/stats'
+import { formSubmissionsRouter } from './routes/formSubmissions'
 
 const app = express()
 
@@ -36,6 +39,9 @@ app.use('/api/auth', authRouter)
 app.use('/api/pets', petsRouter)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/donations', donationsRouter)
+app.use('/api/adoption-requests', adoptionRequestsRouter)
+app.use('/api/stats', statsRouter)
+app.use('/api/form-submissions', formSubmissionsRouter)
 
 // Manejo de errores
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

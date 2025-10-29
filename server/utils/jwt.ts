@@ -1,24 +1,28 @@
+import jwt from 'jsonwebtoken';
+import { env } from '../config/env';
+
+// Definimos un tipo para el payload del JWT para más seguridad y autocompletado
+export interface JwtPayload {
+  sub: string; // Subject (user ID)
+  email: string;
+  role: 'user' | 'admin';
+}
+
 /**
- * jwt.ts
- * Utilidades para manejo de JWT tokens.
+ * Genera un JSON Web Token (JWT).
+ * @param payload - El payload para firmar en el token.
+ * @returns El token JWT firmado.
  */
-
-import jwt from 'jsonwebtoken'
-
-export interface JwtPayloadLite {
-  sub: string
-  email: string
-  role: string
+export function signToken(payload: JwtPayload): string {
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '7d' });
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key'
-
-export function generateToken(payload: JwtPayloadLite): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
-}
-
-export const signToken = generateToken
-
-export function verifyToken(token: string): JwtPayloadLite {
-  return jwt.verify(token, JWT_SECRET) as JwtPayloadLite
+/**
+ * Verifica un token JWT y devuelve su payload.
+ * @param token - El token a verificar.
+ * @returns El payload decodificado del token.
+ * @throws Si el token es inválido o ha expirado.
+ */
+export function verifyToken(token: string): JwtPayload {
+  return jwt.verify(token, env.JWT_SECRET) as JwtPayload;
 }

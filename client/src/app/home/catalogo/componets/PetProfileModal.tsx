@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 
+import { useRouter } from 'next/navigation';
+
 interface PetProfileModalProps {
   open: boolean;
   pet: any | null;
@@ -9,7 +11,28 @@ interface PetProfileModalProps {
 }
 
 export default function PetProfileModal({ open, pet, onClose }: PetProfileModalProps) {
+  const router = useRouter();
   if (!open || !pet) return null;
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'disponible':
+        return 'bg-green-100 text-green-800';
+      case 'en proceso de adopción':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'en seguimiento':
+        return 'bg-blue-100 text-blue-800';
+      case 'adoptado':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleAdoptClick = () => {
+    onClose(); // Close the modal first
+    router.push(`/adopt/${pet._id}`); // Then navigate
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -41,6 +64,9 @@ export default function PetProfileModal({ open, pet, onClose }: PetProfileModalP
           <p className="text-gray-600 text-sm mb-1">
             {pet.kind} • {pet.age}
           </p>
+          <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(pet.status)} mb-3 inline-block`}>
+            {pet.status.charAt(0).toUpperCase() + pet.status.slice(1)}
+          </span>
           <p className="text-gray-500 italic mb-3">{pet.personality}</p>
 
           <div className="border-t border-gray-200 my-3" />
@@ -66,8 +92,8 @@ export default function PetProfileModal({ open, pet, onClose }: PetProfileModalP
 
           {/* Botón adoptar */}
           <button
-            className="bg-[#FFD93D] text-[#2D2D2D] font-semibold px-6 py-2 rounded-full shadow hover:bg-[#ffe066] transition-all hover:cursor-pointer"
-            onClick={() => alert(`Has mostrado interés en adoptar a ${pet.name} 🐾`)}
+            className="bg-[#FFD93D] text-[#2D2D2D] font-semibold px-6 py-2 rounded-full shadow hover:bg-[#ffe066] transition-all hover:cursor-pointer inline-block"
+            onClick={handleAdoptClick}
           >
             Adoptar
           </button>

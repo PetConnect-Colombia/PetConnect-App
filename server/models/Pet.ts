@@ -1,25 +1,23 @@
-/**
- * Pet.ts
- * Modelo de mascotas con campos usados por el catálogo.
- */
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
-import mongoose from 'mongoose'
-
-export type PetKind = 'Perro' | 'Gato'
-
-export interface IPet extends mongoose.Document {
-  name: string
-  age: string
-  kind: PetKind
-  shortBio: string
-  personality: string
-  rescuer: string
-  size: string
-  history: string
-  image: string
+// Interface for the Pet document
+export interface IPet extends Document {
+  name: string;
+  age: string;
+  kind: 'Perro' | 'Gato';
+  shortBio: string;
+  personality: string;
+  rescuer: string;
+  size: string;
+  history: string;
+  image: string;
+  status: 'disponible' | 'en proceso de adopción' | 'en seguimiento' | 'adoptado';
 }
 
-const PetSchema = new mongoose.Schema<IPet>(
+// Interface for the Pet model
+export interface IPetModel extends Model<IPet> {}
+
+const PetSchema: Schema<IPet> = new Schema(
   {
     name: { type: String, required: true, trim: true },
     age: { type: String, required: true },
@@ -30,8 +28,14 @@ const PetSchema = new mongoose.Schema<IPet>(
     size: { type: String, required: true },
     history: { type: String, required: true },
     image: { type: String, required: true },
+    status: {
+      type: String,
+      enum: ['disponible', 'en proceso de adopción', 'en seguimiento', 'adoptado'],
+      default: 'disponible',
+      required: true,
+    },
   },
   { timestamps: true }
-)
+);
 
-export const Pet = mongoose.model<IPet>('Pet', PetSchema)
+export const Pet = (mongoose.models.Pet as IPetModel) || mongoose.model<IPet, IPetModel>('Pet', PetSchema);

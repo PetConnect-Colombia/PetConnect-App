@@ -21,6 +21,15 @@ petsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
   res.status(201).json({ item: pet })
 })
 
+/** GET /api/pets/:id - Obtiene una mascota por ID (público) */
+petsRouter.get('/:id', async (req, res) => {
+  const pet = await Pet.findById(req.params.id)
+  if (!pet) {
+    return res.status(404).json({ message: 'Mascota no encontrada.' })
+  }
+  res.json({ item: pet })
+})
+
 /** PUT /api/pets/:id - Actualiza (admin) */
 petsRouter.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   const pet = await Pet.findByIdAndUpdate(req.params.id, req.body, { new: true })
