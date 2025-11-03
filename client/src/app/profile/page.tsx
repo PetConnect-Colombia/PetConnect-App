@@ -49,11 +49,11 @@ export default function ProfilePage() {
       };
 
       fetchRequests();
-    }
+    } 
   }, [isAuthenticated]);
 
   // Render a loading state while checking auth or fetching data
-  if (authLoading || loading) {
+  if (authLoading || loading) { // Check both authLoading and loading
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="loader">Cargando...</div>
@@ -81,7 +81,7 @@ export default function ProfilePage() {
   return (
     <div>
       {/* <Navbar /> Re-enable if your layout doesn't automatically include it */}
-      <main className="max-w-4xl mx-auto px-4 py-8 pt-24">
+      <main className="max-w-4xl mx-auto px-4 py-8 pt-32">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold text-gray-800">
             Hola, {user?.name}!

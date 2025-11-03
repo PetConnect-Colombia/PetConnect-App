@@ -1,105 +1,112 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { PawPrint, Edit2, Trash2, PlusCircle, Save } from "lucide-react";
-import { useDonations } from "@/hooks/useDonation";
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/app/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { getDonations } from '@/services/donations.service'; // Need to create this service function
+import { DollarSign } from 'lucide-react';
 
-export default function DonacionesList() {
-  const { donations, loading } = useDonations();
+interface Donation {
+  _id: string;
+  stripeSessionId: string;
+  amount: number;
+  currency: string;
+  description: string;
+  donorEmail?: string;
+  status: 'pending' | 'completed' | 'failed';
+  createdAt: string; // Date string
+}
 
+export default function AdminDonationsPage() {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (loading) return <p className="text-center py-8">Cargando campañas...</p>;
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated || user?.role !== 'admin') {
+        router.push('/auth/login'); // Redirect if not admin
+        return;
+      }
+
+      const fetchDonations = async () => {
+        try {
+          setLoading(true);
+          setError(null);
+          const data = await getDonations(); // Call the service
+          setDonations(data.items); // Assuming API returns { items: [...] }
+        } catch (err: any) {
+          console.error('Error fetching donations:', err);
+          setError('Error al cargar las donaciones.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchDonations();
+    }
+  }, [isAuthenticated, user, authLoading, router]);
+
+  if (loading || authLoading) {
+    return <p className="text-center py-8">Cargando donaciones...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center py-8 text-red-500">Error: {error}</p>;
+  }
 
   return (
-    <section className="p-8 bg-white/90 rounded-2xl shadow-xl mb-6 max-w-5xl mx-auto animate-fade-in">
-      <div className="flex items-center gap-3 mb-6">
-        <PawPrint className="text-[#3DD9D6] w-8 h-8" />
-        <h2 className="text-2xl font-bold text-[#3DD9D6]">Donaciones recibidas</h2>
+    <section className="p-8 bg-white/90 rounded-2xl shadow-xl mb-6 max-w-6xl mx-auto animate-fade-in">
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <DollarSign className="text-[#3DD9D6] w-8 h-8" />
+          <h2 className="text-2xl font-bold text-[#3DD9D6]">Gestión de Donaciones</h2>
+        </div>
       </div>
 
-      {/* TABLA */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border mt-4 rounded-xl overflow-hidden">
-          <thead>
-            <tr className="bg-[#e0f7fa] text-[#2D2D2D]">
-              <th className="p-3">Nombre</th>
-              <th className="p-3">Número de tarjeta</th>
-              <th className="p-3">Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {donations.map((b: any) => (
-              <tr key={b._id} className="border-t text-[#2D2D2D] hover:bg-[#f8fafc] transition">
-                <td className="p-3">{b.name}</td>
-                <td className="p-3">{b.cardNumber}</td>
-                <td className="p-3 truncate max-w-xs">{b.amount}</td>
+      {donations.length === 0 ? (
+        <div className="text-center p-8 bg-white shadow-md rounded-lg">
+          <p className="text-gray-700">No hay donaciones registradas aún.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border mt-4 rounded-xl overflow-hidden">
+            <thead>
+              <tr className="bg-[#e0f7fa] text-[#2D2D2D]">
+                <th className="p-3">ID de Sesión</th>
+                <th className="p-3">Monto</th>
+                <th className="p-3">Moneda</th>
+                <th className="p-3">Descripción</th>
+                <th className="p-3">Email Donante</th>
+                <th className="p-3">Estado</th>
+                <th className="p-3">Fecha</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <style jsx global>{`
-        .input {
-          border: 1px solid #3dd9d6;
-          color: #2d2d2d;
-          border-radius: 8px;
-          padding: 0.5rem 0.75rem;
-          outline: none;
-          transition: 0.2s;
-        }
-        .btn-blue,
-        .btn-yellow {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 1rem;
-          border-radius: 8px;
-          font-weight: 600;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-        }
-        .btn-blue {
-          background: #3dd9d6;
-          color: white;
-        }
-        .btn-blue:hover {
-          background: #2bb2b0;
-        }
-        .btn-yellow {
-          background: #ffd93d;
-          color: #2d2d2d;
-        }
-        .btn-yellow:hover {
-          background: #ffe066;
-        }
-        .action-edit {
-          color: #3dd9d6;
-        }
-        .action-edit:hover {
-          text-decoration: underline;
-          color: #2bb2b0;
-        }
-        .action-delete {
-          color: #e63946;
-        }
-        .action-delete:hover {
-          text-decoration: underline;
-          color: #b91c1c;
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
+            </thead>
+            <tbody>
+              {donations.map((donation) => (
+                <tr key={donation._id} className="text-[#2D2D2D] border-t hover:bg-[#f8fafc] transition">
+                  <td className="p-3 text-sm">{donation.stripeSessionId}</td>
+                  <td className="p-3 font-semibold">${donation.amount.toLocaleString('es-CO')}</td>
+                  <td className="p-3 uppercase">{donation.currency}</td>
+                  <td className="p-3">{donation.description}</td>
+                  <td className="p-3">{donation.donorEmail || 'N/A'}</td>
+                  <td className="p-3">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      donation.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      donation.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {donation.status}
+                    </span>
+                  </td>
+                  <td className="p-3 text-sm">{new Date(donation.createdAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }

@@ -3,6 +3,7 @@ export default function NavbarInterno({ current, setCurrent }: { current: string
     { key: 'inicio', label: 'Inicio' },
     { key: 'peluditos', label: 'Peluditos' },
     { key: 'solicitudes', label: 'Solicitudes de Adopción' },
+    { key: 'seguimientos', label: 'Seguimientos' }, // New optionS
     { key: 'blogs', label: 'Blogs' },
     { key: 'donaciones', label: 'Donaciones' },
   ];

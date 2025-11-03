@@ -81,9 +81,11 @@ export default function CrudPeluditos() {
           <PawPrint className="text-[#3DD9D6] w-8 h-8" />
           <h2 className="text-2xl font-bold text-[#3DD9D6]">Gestión de Peluditos</h2>
         </div>
+        {!editId && (
         <button onClick={() => router.push('/home/administrador/peluditos/crear')} className="btn-blue">
           <PlusCircle size={18} /> Crear Mascota
         </button>
+        )}
       </div>
 
       {/* FORMULARIO DE EDICIÓN */}
@@ -102,7 +104,7 @@ export default function CrudPeluditos() {
             <input name="rescuer" value={form.rescuer} onChange={handleChange} placeholder="Rescatista o refugio" className="h-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#3DD9D6] focus:ring-[#3DD9D6] text-slate-800" />
             <input name="size" value={form.size} onChange={handleChange} placeholder="Tamaño (Pequeño, Mediano, Grande)" className="h-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#3DD9D6] focus:ring-[#3DD9D6] text-slate-800" />
             <textarea name="history" value={form.history} onChange={handleChange} placeholder="Historia breve" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#3DD9D6] focus:ring-[#3DD9D6] text-slate-800" rows={4}></textarea>
-            <input name="image" value={form.image} onChange={handleChange} placeholder="URL de imagen" className="h-10 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#3DD9D6] focus:ring-[#3DD9D6] text-slate-800" />
+            <input name="image" value={form.image} onChange={handleChange} placeholder="URL de imagen" className="h-10 mt-1block w-full rounded-md border-gray-300 shadow-sm focus:border-[#3DD9D6] focus:ring-[#3DD9D6] text-slate-800" />
           </div>
           <div className="flex justify-end gap-4">
             <button onClick={() => setEditId(null)} className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition">

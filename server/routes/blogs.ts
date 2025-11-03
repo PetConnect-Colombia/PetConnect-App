@@ -21,3 +21,18 @@ blogsRouter.post('/', requireAuth, requireAdmin, async (req, res) => {
     res.status(201).json({ item: blog })
 })
 
+/** PUT /api/blogs/:id - Actualiza campaña (admin) */
+blogsRouter.put('/:id', requireAuth, requireAdmin, async (req, res) => {
+  const blog = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!blog) {
+    return res.status(404).json({ message: 'Campaña no encontrada.' });
+  }
+  res.json({ item: blog });
+});
+
+/** DELETE /api/blogs/:id - Elimina campaña (admin) */
+blogsRouter.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
+  await Blog.findByIdAndDelete(req.params.id);
+  res.status(204).send();
+});
+

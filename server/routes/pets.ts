@@ -1,11 +1,7 @@
-/**
- * pets.ts (router)
- * CRUD de mascotas. Lectura pública, escritura sólo admin.
- */
-
 import { Router } from 'express'
 import { Pet } from '../models/Pet'
 import { requireAuth, requireAdmin } from '../middleware/auth'
+import { startFollowUpProcessForPet } from '../utils/followUpUtils' // New import
 
 export const petsRouter = Router()
 
@@ -32,8 +28,24 @@ petsRouter.get('/:id', async (req, res) => {
 
 /** PUT /api/pets/:id - Actualiza (admin) */
 petsRouter.put('/:id', requireAuth, requireAdmin, async (req, res) => {
-  const pet = await Pet.findByIdAndUpdate(req.params.id, req.body, { new: true })
-  res.json({ item: pet })
+  const { status } = req.body; // Destructure status
+
+  try {
+    const pet = await Pet.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!pet) {
+      return res.status(404).json({ message: 'Mascota no encontrada.' });
+    }
+
+    // If status is set to 'en seguimiento', trigger the follow-up process
+    if (status === 'en seguimiento') {
+      await startFollowUpProcessForPet(pet._id.toString());
+    }
+
+    res.json({ item: pet });
+  } catch (err) {
+    console.error('Error updating pet or starting follow-up:', err);
+    res.status(500).json({ message: 'Error interno del servidor al actualizar mascota.' });
+  }
 })
 
 /** DELETE /api/pets/:id - Elimina (admin) */

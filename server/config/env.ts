@@ -13,12 +13,12 @@ export const env = {
 
   // URI de la base de datos MongoDB.
   // Es crucial que esta variable esté definida en el archivo .env.
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://petconnect_db_user:gOee3vDu9JgpHWJv@petconnect.dbbyvs2.mongodb.net/PetConnect_DB?appName=PetConnect',
+  MONGODB_URI: process.env.MONGODB_URI || '',
 
   // Secreto para firmar los JSON Web Tokens (JWT).
   // ¡IMPORTANTE! Este valor DEBE ser largo, aleatorio y guardado de forma segura.
   // No se recomienda tener un valor por defecto quemado en el código.
-  JWT_SECRET: process.env.JWT_SECRET || 'ESTE_ES_UN_SECRETO_DE_DESARROLLO_MUY_INSEGURO',
+  JWT_SECRET: process.env.JWT_SECRET || '',
 
   // Orígenes permitidos para CORS. Para desarrollo puede ser '*'.
   // En producción, debería ser una lista de dominios permitidos.
@@ -29,7 +29,13 @@ export const env = {
 
   // --- Configuración de Stripe ---
   // ¡IMPORTANTE! Usar claves de prueba para desarrollo.
-  STRIPE_SECRET: process.env.STRIPE_SECRET || 'sk_test_..._REEMPLAZAR_CON_CLAVE_REAL',
-  STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL || 'http://localhost:3000/donations/success',
-  STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL || 'http://localhost:3000/donations/cancel',
+  STRIPE_SECRET: process.env.STRIPE_SECRET || '',
+  STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL || 'http://localhost:3000/home/donaciones/success',
+  STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL || 'http://localhost:3000/home/donaciones/cancel',
+
+  //--- COnfiguración Coudinary
+  // precarga: petconnect-pc
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_NAME || 'do1efktan',
+  CLOUDINARY_API_KEY: process.env.API_KEY || '',
+  CLOUDINARY_API_SECRET: process.env.API_SECRET || '',
 };

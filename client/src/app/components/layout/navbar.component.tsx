@@ -52,10 +52,10 @@ export default function Navbar() {
           />
           <div className="flex flex-col leading-4">
             <span className="text-lg md:text-xl font-semibold text-[#3DD9D6]">
-              PetConnect
+              {/* PetConnect */}
             </span>
             <span className="text-xs text-gray-600 tracking-wide">
-              COLOMBIA
+              {/* COLOMBIA */}
             </span>
           </div>
         </Link>
@@ -77,7 +77,11 @@ export default function Navbar() {
             <Link
               key={item.id}
               href={item.href}
-              className="hover:text-[#3DD9D6] px-2 py-1 rounded transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3DD9D6]"
+              className={`px-2 py-1 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3DD9D6] ${
+                item.name === 'Admin'
+                  ? 'bg-[#BDF9FF] text-[#00ADAC] hover:bg-[#b2ebf2]'
+                  : 'hover:text-[#3DD9D6]'
+              }`}
               prefetch
             >
               <span className="text-sm md:text-base">{item.name}</span>
@@ -88,7 +92,7 @@ export default function Navbar() {
               <span className="text-gray-700">Hola, {user.name}</span>
             ) : null}
             {isAuthenticated ? (
-              <button className='text-center py-1 px-2 text-red-500 hover:bg-red-100 hover:text-red-600 hover:cursor-pointer rounded-xl transition-colors duration-200'
+              <button className='text-center py-1 px-2 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 hover:cursor-pointer rounded-xl transition-colors duration-200'
                 onClick={handleLogout}>
                 Cerrar sesión
               </button>
@@ -109,7 +113,11 @@ export default function Navbar() {
             <Link
               key={item.id}
               href={item.href}
-              className="w-full text-center py-2 text-[#2D2D2D] hover:bg-[#e0f7fa] hover:text-[#3DD9D6] rounded transition-colors duration-200"
+              className={`w-full text-center py-2 rounded transition-colors duration-200 ${
+                item.name === 'Admin'
+                  ? 'bg-[#e0f7fa] text-[#2D2D2D] hover:bg-[#b2ebf2]'
+                  : 'text-[#2D2D2D] hover:bg-[#e0f7fa] hover:text-[#3DD9D6]'
+              }`}
               onClick={() => setOpen(false)}
               prefetch
             >
@@ -121,7 +129,7 @@ export default function Navbar() {
                 <span className="text-gray-700 py-2">Hola, {user.name}</span>
             ) : null}
             {isAuthenticated ? (
-              <button className='w-full text-center py-2 text-red-500 hover:bg-red-100 hover:text-red-600 hover:cursor-pointer rounded transition-colors duration-200'
+              <button className='w-full text-center py-2 bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 hover:cursor-pointer rounded transition-colors duration-200'
                 onClick={handleLogout}>
                 Cerrar sesión
               </button>

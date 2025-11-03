@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
 import { LoaderProvider } from "./context/LoaderContext";
+import Navbar from "./components/layout/navbar.component";
 import Footer from "./components/layout/footer.component";
 
 const geistSans = Geist({
@@ -36,6 +37,7 @@ export default function RootLayout({
           <LoaderProvider>
             <AuthProvider>
               <div className="flex-grow">
+                <Navbar />
                 {children}
               </div>
               <Footer />

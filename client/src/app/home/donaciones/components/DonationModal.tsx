@@ -1,107 +1,47 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { CreditCard, Calendar, User, Shield } from 'lucide-react';
 import { useDonations } from "@/hooks/useDonation";
 import { useAlert } from '@/app/context/AlertContext';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  amount?: number;
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: any) => void; // amount prop removed
 };
 
-export default function DonationModal({ isOpen, onClose, amount, onSuccess }: Props) {
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
-  const [name, setName] = useState('');
+export default function DonationModal({ isOpen, onClose, onSuccess }: Props) { // amount prop removed
+  const [donationAmount, setDonationAmount] = useState(20000); // Default to 20000 cents = $200.00 COP
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { showAlert } = useAlert();
-  const { donations, addDonation } = useDonations();
+  const { addDonation } = useDonations(); // donations prop removed
 
   useEffect(() => {
     if (!isOpen) {
-      setCardNumber('');
-      setExpiry('');
-      setCvc('');
-      setName('');
+      setDonationAmount(20000); // Reset amount on close
       setError(null);
       setLoading(false);
     }
   }, [isOpen]);
 
-  // --- Helpers de formato y validación ---
-  const formatCardNumber = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 19);
-    return digits.replace(/(.{4})/g, '$1 ').trim();
-  };
-
-  const formatExpiry = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 4);
-    if (digits.length <= 2) return digits;
-    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}`;
-  };
-
-  const luhnCheck = (cc: string) => {
-    const digits = cc.replace(/\D/g, '');
-    return digits.length >= 12;
-  };
-
-  const validExpiry = (value: string) => {
-    const m = value.replace(/\s/g, '').split('/');
-    if (m.length !== 2) return false;
-    const mm = parseInt(m[0], 10);
-    const yy = parseInt(m[1], 10);
-    if (isNaN(mm) || isNaN(yy)) return false;
-    if (mm < 1 || mm > 12) return false;
-    const now = new Date();
-    const currentYear = now.getFullYear() % 100;
-    const currentMonth = now.getMonth() + 1;
-    if (yy < currentYear) return false;
-    if (yy === currentYear && mm < currentMonth) return false;
-    return true;
-  };
-
-  const validCvc = (value: string) => {
-    const d = value.replace(/\D/g, '');
-    return d.length >= 3 && d.length <= 4;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const rawCard = cardNumber.replace(/\s/g, '');
-    if (luhnCheck(rawCard)) {
-      setError('Número de tarjeta inválido');
-      return;
-    }
-    if (!validExpiry(expiry)) {
-      setError('Fecha de expiración inválida');
-      return;
-    }
-    if (!validCvc(cvc)) {
-      setError('CVC inválido');
-      return;
-    }
-    if (!name.trim()) {
-      setError('Ingresa el nombre del titular');
+    if (donationAmount < 1000) { // Minimum donation of $10.00 COP
+      setError('La donación mínima es de $10.00 COP');
       return;
     }
 
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token") || "";
-      await addDonation({ amount: 20000, cardNumber, expiry, cvc, name },token);
-
-      showAlert("success", "Donacion exitosa.");
-      setLoading(false);
-      onClose();
-    } catch (err) {
-      setError('Error de red. Intenta de nuevo.');
+      await addDonation(donationAmount); // Call addDonation with the amount
+      // addDonation now handles redirection, so onSuccess and onClose are not called here
+      // showAlert("success", "Redirigiendo a Stripe..."); // Alert before redirect
+    } catch (err: any) {
+      setError(err.message || 'Error al iniciar la donación. Intenta de nuevo.');
+      showAlert("error", error || 'Error al iniciar la donación.');
     } finally {
       setLoading(false);
     }
@@ -128,9 +68,9 @@ export default function DonationModal({ isOpen, onClose, amount, onSuccess }: Pr
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 id="donation-modal-title" className="text-xl font-bold text-[#2d2d2d]">
-                Donar {amount ? `- $${amount}` : ''}
+                Hacer una Donación
               </h3>
-              <p className="text-sm text-gray-500">Ingresa los datos de tu tarjeta</p>
+              <p className="text-sm text-gray-500">Tu apoyo es vital para nuestros peluditos.</p>
             </div>
             <button
               type="button"
@@ -144,70 +84,16 @@ export default function DonationModal({ isOpen, onClose, amount, onSuccess }: Pr
 
           <div className="mt-4 space-y-4">
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700">Número de tarjeta</label>
-              <span className="absolute left-3 top-10 text-[#3DD9D6]">
-                <CreditCard size={20} />
-              </span>
+              <label className="block text-sm font-medium text-gray-700">Cantidad a Donar (COP)</label>
               <input
+                type="number"
                 inputMode="numeric"
-                autoComplete="cc-number"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                placeholder="1234 1234 1234 1234"
-                className="mt-1 block w-full p-3 pl-10 border text-gray-900 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3DD9D6] transition"
+                value={donationAmount / 100} // Display in COP, convert to cents for backend
+                onChange={(e) => setDonationAmount(Number(e.target.value) * 100)}
+                placeholder="Ej: 20000"
+                className="mt-1 block w-full p-3 pl-4 border text-gray-900 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3DD9D6] transition"
                 required
-                maxLength={23}
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-1 relative">
-                <label className="block text-sm font-medium text-gray-700">Expiración (MM/YY)</label>
-                <span className="absolute left-3 top-10 text-[#3DD9D6]">
-                  <Calendar size={20} />
-                </span>
-                <input
-                  inputMode="numeric"
-                  autoComplete="cc-exp"
-                  value={expiry}
-                  onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-                  placeholder="MM/YY"
-                  className="mt-1 block w-full p-3 pl-10 border text-gray-900 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3DD9D6] transition"
-                  required
-                  maxLength={5}
-                />
-              </div>
-
-              <div className="w-[110px] relative">
-                <label className="block text-sm font-medium text-gray-700">CVC</label>
-                <span className="absolute left-3 top-10 text-[#3DD9D6]">
-                  <Shield size={20} />
-                </span>
-                <input
-                  inputMode="numeric"
-                  autoComplete="cc-csc"
-                  value={cvc}
-                  onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  placeholder="123"
-                  className="mt-1 block w-full p-3 pl-10 border text-gray-900 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3DD9D6] transition"
-                  required
-                  maxLength={4}
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="block text-sm font-medium text-gray-700">Nombre en la tarjeta</label>
-              <span className="absolute left-3 top-10 text-[#3DD9D6]">
-                <User size={20} />
-              </span>
-              <input
-                autoComplete="cc-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ej: Juan Pérez"
-                className="mt-1 block w-full p-3 pl-10 border text-gray-900 border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3DD9D6] transition"
-                required
+                min={100} // Minimum $1.00 COP
               />
             </div>
 
@@ -241,7 +127,7 @@ export default function DonationModal({ isOpen, onClose, amount, onSuccess }: Pr
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
                 </svg>
               )}
-              {loading ? 'Procesando...' : `Donar${amount ? ` $${amount}` : ''}`}
+              {loading ? 'Redirigiendo...' : `Donar $${(donationAmount / 100).toLocaleString('es-CO')}`}
             </button>
           </div>
         </form>
@@ -251,8 +137,8 @@ export default function DonationModal({ isOpen, onClose, amount, onSuccess }: Pr
           animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.97);}
-          to { opacity: 1; transform: scale(1);}
+          from { opacity: 0; transform: scale(0.97); }
+          to { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>

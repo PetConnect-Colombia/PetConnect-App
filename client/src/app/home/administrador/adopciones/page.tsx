@@ -4,7 +4,7 @@ import { CheckCircle2, Eye } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useAlert } from "@/app/context/AlertContext";
 import { useRouter } from 'next/navigation';
-import { getAllAdoptionRequests, updateAdoptionRequestStatus } from '@/services/adoption.service';
+import { getAllAdoptionRequests, updateAdoptionRequestStatus } from '@/services/adoption-requests.service';
 
 interface AdoptionRequest {
   _id: string;

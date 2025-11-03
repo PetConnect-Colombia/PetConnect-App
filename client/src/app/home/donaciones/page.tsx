@@ -69,14 +69,6 @@ export default function Donaciones() {
       <DonationModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        amount={20}
-        onSuccess={(res) => {
-          setShowThanks(true);
-          setOpen(false);
-          setTimeout(() => setShowThanks(false), 4000);
-          // mostrar alert global, recargar datos, etc.
-          console.log('donation success', res);
-        }}
       />
 
       {/* Animaciones Tailwind personalizadas */}

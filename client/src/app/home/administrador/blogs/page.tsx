@@ -46,11 +46,11 @@ export default function CrudBlogs() {
       </div>
 
       {/* FORMULARIO */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <input name="title" value={form.title} onChange={handleChange} placeholder="Título" className="input" />
         <input name="summary" value={form.summary} onChange={handleChange} placeholder="Resumen" className="input" />
-        <input name="content" value={form.content} onChange={handleChange} placeholder="Contenido" className="input" />
         <input name="image" value={form.image} onChange={handleChange} placeholder="URL Imagen" className="input" />
+        <textarea name="content" value={form.content} onChange={handleChange} placeholder="Contenido" className="textarea-input md:col-span-3"></textarea>
       </div>
 
       <div className="flex justify-end mb-6">
@@ -112,6 +112,16 @@ export default function CrudBlogs() {
           padding: 0.5rem 0.75rem;
           outline: none;
           transition: 0.2s;
+        }
+        .textarea-input {
+          border: 1px solid #3dd9d6;
+          color: #2d2d2d;
+          border-radius: 8px;
+          padding: 0.5rem 0.75rem;
+          outline: none;
+          transition: 0.2s;
+          resize: vertical;
+          min-height: 120px;
         }
         .btn-blue,
         .btn-yellow {

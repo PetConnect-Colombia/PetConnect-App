@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
-import {
-  getDonations,
-  createDonation,
-  updateDonation,
-  deleteDonation,
-  totalsDonation
-} from "@/services/donation.service";
+import { getDonations as fetchDonations } from "@/services/donations.service"; // Assuming this exists for fetching
+import { createStripeCheckoutSession } from "@/services/donations.service"; // New import
+import { useAuth } from "@/app/context/AuthContext";
 
 export const useDonations = () => {
-  const [donations, setDonations] = useState<any[]>([]);
+  const { isAuthenticated, user } = useAuth();
+  const [donations, setDonations] = useState<any[]>([]); // Assuming donations are fetched
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 🔹 Cargar lista de donaciones (if needed)
   const loadDonations = async () => {
     setLoading(true);
     try {
-      const data = await getDonations();
-      setDonations(data);
+      // const data = await fetchDonations(); // Uncomment if you have a backend endpoint for listing donations
+      // setDonations(data);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -24,28 +22,28 @@ export const useDonations = () => {
     }
   };
 
-  const addDonation = async (data: any, token?: string) => {
-    const donation = await createDonation(data, token);
-    setDonations([donation, ...donations]);
-  };
-
-  const editDonation = async (id: string, data: any, token?: string) => {
-    const donation = await updateDonation(id, data, token);
-    setDonations(donations.map((b) => (b._id === id ? donation : b)));
-  };
-
-  const removeDonation = async (id: string, token?: string) => {
-    await deleteDonation(id, token);
-    setDonations(donations.filter((b) => b._id !== id));
-  };
-
-  const totalsDonations = async (token?: string) => {
-    return await totalsDonation(token);
+  // 🔹 Iniciar proceso de donación con Stripe Checkout
+  const addDonation = async (amount: number) => { // Only takes amount
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await createStripeCheckoutSession(amount, user?.id, user?.name);
+      if (response.url) {
+        window.location.href = response.url; // Redirect to Stripe Checkout
+      } else {
+        throw new Error("No se recibió URL de Stripe Checkout.");
+      }
+    } catch (err: any) {
+      console.error("Error creating Stripe Checkout session:", err);
+      setError(err.message || "Error al iniciar la donación.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadDonations();
+    // loadDonations(); // Uncomment if you want to load donations on mount
   }, []);
 
-  return { donations, loading, error, addDonation, editDonation, removeDonation, totalsDonations, reload: loadDonations };
+  return { donations, loading, error, addDonation, reload: loadDonations };
 };

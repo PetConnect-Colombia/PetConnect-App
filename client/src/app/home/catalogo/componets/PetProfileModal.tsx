@@ -31,7 +31,7 @@ export default function PetProfileModal({ open, pet, onClose }: PetProfileModalP
 
   const handleAdoptClick = () => {
     onClose(); // Close the modal first
-    router.push(`/adopt/${pet._id}`); // Then navigate
+    router.push(`/auth/onboarding?petId=${pet._id}`); // Redirect to onboarding with petId
   };
 
   return (

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AdoptionRequest } from '../models/AdoptionRequest';
 import { Pet } from '../models/Pet';
+import { AdopterFormSubmission } from '../models/AdopterFormSubmission'; // New import
 import { requireAuth, requireAdmin } from '../middleware/auth';
 
 export const adoptionRequestsRouter = Router();
@@ -31,14 +32,35 @@ adoptionRequestsRouter.get('/my-requests', requireAuth, async (req, res) => {
  */
 adoptionRequestsRouter.post('/', requireAuth, async (req, res) => {
   try {
-    const { pet, contactEmail, contactPhone, message, formSubmission } = req.body;
+    let { pet, contactEmail, contactPhone, message, formSubmission } = req.body; // Use let for formSubmission
     console.log('Received adoption request body:', req.body);
     const userId = req.user!.sub;
+
+    // If formSubmission is not provided, create a minimal one
+    if (!formSubmission) {
+      const newFormSubmission = await AdopterFormSubmission.create({
+        fullName: req.user?.email || 'Usuario Anónimo', // Use logged-in user's email or a placeholder
+        email: contactEmail,
+        phone: contactPhone,
+        housingType: 'No especificado', // Default value
+        hasOtherPets: false,
+        hasChildren: false,
+        livesWithAdults: false,
+        ageRange: 'No especificado', // Default value
+        department: 'No especificado', // Default value
+        city: 'No especificado', // Default value
+        petPreference: 'No especificado', // Default value
+        reasonForAdoption: message || 'No especificado', // Use message or default
+        user: userId,
+        status: 'pendiente',
+      });
+      formSubmission = newFormSubmission._id; // Assign the ID of the newly created form submission
+    }
 
     const newRequest = await AdoptionRequest.create({
       pet,
       user: userId,
-      formSubmission,
+      formSubmission, // Now formSubmission is guaranteed to have a value
       contactEmail,
       contactPhone,
       message,

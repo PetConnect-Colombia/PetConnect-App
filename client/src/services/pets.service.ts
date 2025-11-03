@@ -4,8 +4,12 @@ import api from "./api";
 // api.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
 
 // ✅ Obtener todas las mascotas
-export const getPets = async () => {
-  const res = await api.get("/pets");
+export const getPets = async (status?: string) => { // Added optional status parameter
+  let url = "/pets";
+  if (status) {
+    url += `?status=${status}`; // Manually construct URL with query parameter
+  }
+  const res = await api.get(url); // Pass URL directly
   return res.data.items;
 };
 

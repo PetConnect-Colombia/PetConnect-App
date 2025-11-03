@@ -13,10 +13,11 @@ import { connectDB } from './config/db'
 import { authRouter } from './routes/auth'
 import { petsRouter } from './routes/pets'
 import { blogsRouter } from './routes/blogs'
-import { donationsRouter } from './routes/donations'
+import { donationsRouter } from './routes/donations' // Updated import
 import { adoptionRequestsRouter } from './routes/adoptionRequests'
 import { statsRouter } from './routes/stats'
 import { formSubmissionsRouter } from './routes/formSubmissions'
+import { followUpsRouter } from './routes/followUps'
 
 const app = express()
 
@@ -28,20 +29,21 @@ app.use(
     credentials: true,
   })
 )
-app.use(express.json({ limit: '1mb' }))
+app.use(express.json({ limit: '1mb' })) // Global JSON body parser
 app.use(morgan('dev'))
 
 // Healthcheck
 app.get('/api/health', (_req, res) => res.json({ ok: true }))
 
-// Rutas
+// Rutas (after global JSON parser)
 app.use('/api/auth', authRouter)
 app.use('/api/pets', petsRouter)
 app.use('/api/blogs', blogsRouter)
-app.use('/api/donations', donationsRouter)
+app.use('/api/donations', donationsRouter) // Regular donations router
 app.use('/api/adoption-requests', adoptionRequestsRouter)
 app.use('/api/stats', statsRouter)
 app.use('/api/form-submissions', formSubmissionsRouter)
+app.use('/api/follow-ups', followUpsRouter)
 
 // Manejo de errores
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -1,41 +1,41 @@
-import api from './api';
+import api from "./api";
 
-/**
- * Fetches all adoption requests from the API (admin only).
- */
-export const getAllAdoptionRequests = async () => {
-  const res = await api.get('/adoption-requests');
+// Get all adoption requests (for admins)
+export const getAllAdoptionRequests = async (token?: string) => {
+  const res = await api.get("/adoption-requests", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
 
-/**
- * Updates the status of an adoption request (admin only).
- */
-export const updateAdoptionRequestStatus = async (id: string, status: string) => {
-  const res = await api.put(`/adoption-requests/${id}`, { status });
-  return res.data;
-};
-
-/**
- * Creates a new adoption request.
- */
-export const createAdoptionRequest = async (data: { pet: string; formSubmission: string; contactEmail: string; contactPhone: string; message: string; }) => {
-  const res = await api.post('/adoption-requests', data);
-  return res.data;
-};
-
-/**
- * Fetches all adoption requests for the currently logged-in user.
- */
+// Get adoption requests for the currently logged-in user
 export const getMyAdoptionRequests = async () => {
-  const res = await api.get('/adoption-requests/my-requests');
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+  const res = await api.get("/adoption-requests/my-requests", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
 
-/**
- * Fetches a single adoption request by ID (admin only).
- */
-export const getAdoptionRequestById = async (id: string) => {
-  const res = await api.get(`/adoption-requests/${id}`);
+// Create a new adoption request
+export const createAdoptionRequest = async (petId: string, message: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        throw new Error("No token found");
+    }
+    const res = await api.post("/adoption-requests", { petId, message }, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+};
+
+// Update an adoption request (for admins)
+export const updateAdoptionRequest = async (id: string, status: string, token?: string) => {
+  const res = await api.put(`/adoption-requests/${id}`, { status }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };

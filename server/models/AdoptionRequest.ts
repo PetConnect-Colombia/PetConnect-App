@@ -12,6 +12,8 @@ export interface IAdoptionRequest extends Document {
   contactEmail: string;
   contactPhone: string;
   message?: string;
+  createdAt: Date; // Added for timestamps
+  updatedAt: Date; // Added for timestamps
 }
 
 // Interface for the AdoptionRequest model

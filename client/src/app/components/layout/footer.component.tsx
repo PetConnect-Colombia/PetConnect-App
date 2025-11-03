@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { JSX } from 'react';
+import { MailIcon } from 'lucide-react';
 
 // You can define a type for social links for better maintenance
 type SocialLink = {
@@ -35,6 +37,7 @@ export default function Footer() {
     { name: 'Facebook', href: '#', icon: <FacebookIcon /> },
     { name: 'Twitter', href: '#', icon: <TwitterIcon /> },
     { name: 'Instagram', href: '#', icon: <InstagramIcon /> },
+    { name: 'Mail', href: '#', icon: <MailIcon /> },
   ];
 
   return (
@@ -52,7 +55,7 @@ export default function Footer() {
         
         {/* Contact Info */}
         <div className="sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
-            <p className="text-sm text-gray-500">Email: contacto@petconnect.com</p>
+            <p className="text-sm text-gray-500"> Email: petconnect.contacto@gmail.com</p>
             <p className="text-sm text-gray-500">Teléfono: +57 123 456 7890</p>
         </div>
 
