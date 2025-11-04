@@ -1,0 +1,96 @@
+import { NextResponse } from 'next/server';
+import { Pet } from '@/lib/models/Pet';
+import dbConnect from '@/lib/config/db';
+import { verifyToken, JwtPayload } from '@/lib/utils/jwt';
+import { headers } from 'next/headers';
+import { User } from '@/lib/models/User';
+import { startFollowUpProcessForPet } from '@/lib/utils/followUpUtils';
+
+function getTokenFromHeader(): string | null {
+  const authHeader = headers().get('authorization');
+  if (!authHeader) {
+    return null;
+  }
+
+  const [type, token] = authHeader.split(' ');
+  if (type !== 'Bearer' || !token) {
+    return null;
+  }
+
+  return token;
+}
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  await dbConnect();
+  const pet = await Pet.findById(params.id);
+  if (!pet) {
+    return NextResponse.json({ message: 'Mascota no encontrada.' }, { status: 404 });
+  }
+  return NextResponse.json({ item: pet });
+}
+
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  await dbConnect();
+
+  const token = getTokenFromHeader();
+  if (!token) {
+    return NextResponse.json({ message: 'No autenticado. Se requiere token.' }, { status: 401 });
+  }
+
+  try {
+    const payload = verifyToken(token) as JwtPayload;
+    const user = await User.findById(payload.sub);
+
+    if (!user) {
+      return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
+    }
+
+    if (user.role !== 'admin') {
+      return NextResponse.json({ message: 'Acceso denegado. Se requiere rol de administrador.' }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const { status } = body;
+
+    const pet = await Pet.findByIdAndUpdate(params.id, body, { new: true });
+    if (!pet) {
+      return NextResponse.json({ message: 'Mascota no encontrada.' }, { status: 404 });
+    }
+
+    if (status === 'en seguimiento') {
+      await startFollowUpProcessForPet(pet._id.toString());
+    }
+
+    return NextResponse.json({ item: pet });
+  } catch (error) {
+    console.error('Error updating pet or starting follow-up:', error);
+    return NextResponse.json({ message: 'Token inválido o expirado o error interno.' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  await dbConnect();
+
+  const token = getTokenFromHeader();
+  if (!token) {
+    return NextResponse.json({ message: 'No autenticado. Se requiere token.' }, { status: 401 });
+  }
+
+  try {
+    const payload = verifyToken(token) as JwtPayload;
+    const user = await User.findById(payload.sub);
+
+    if (!user) {
+      return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
+    }
+
+    if (user.role !== 'admin') {
+      return NextResponse.json({ message: 'Acceso denegado. Se requiere rol de administrador.' }, { status: 403 });
+    }
+
+    await Pet.findByIdAndDelete(params.id);
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Token inválido o expirado.' }, { status: 401 });
+  }
+}

@@ -1,0 +1,90 @@
+import { NextResponse } from 'next/server';
+import { AdopterFormSubmission } from '@/lib/models/AdopterFormSubmission';
+import dbConnect from '@/lib/config/db';
+import { verifyToken, JwtPayload } from '@/lib/utils/jwt';
+import { headers } from 'next/headers';
+import { User } from '@/lib/models/User';
+
+function getTokenFromHeader(): string | null {
+  const authHeader = headers().get('authorization');
+  if (!authHeader) {
+    return null;
+  }
+
+  const [type, token] = authHeader.split(' ');
+  if (type !== 'Bearer' || !token) {
+    return null;
+  }
+
+  return token;
+}
+
+async function adminMiddleware(req: Request) {
+    const token = getTokenFromHeader();
+    if (!token) {
+        return NextResponse.json({ message: 'No autenticado. Se requiere token.' }, { status: 401 });
+    }
+
+    try {
+        const payload = verifyToken(token) as JwtPayload;
+        const user = await User.findById(payload.sub);
+
+        if (!user) {
+            return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
+        }
+
+        if (user.role !== 'admin') {
+            return NextResponse.json({ message: 'Acceso denegado. Se requiere rol de administrador.' }, { status: 403 });
+        }
+        return null;
+    } catch (error) {
+        return NextResponse.json({ message: 'Token inválido o expirado.' }, { status: 401 });
+    }
+}
+
+export async function POST(req: Request) {
+    await dbConnect();
+    const token = getTokenFromHeader();
+    if (!token) {
+        return NextResponse.json({ message: 'No autenticado. Se requiere token.' }, { status: 401 });
+    }
+
+    try {
+        const payload = verifyToken(token) as JwtPayload;
+        const userId = payload.sub;
+
+        const {
+            fullName, email, phone, housingType, hasOtherPets, hasChildren,
+            livesWithAdults, ageRange, department, city, petPreference, reasonForAdoption
+        } = await req.json();
+
+        const newSubmission = await AdopterFormSubmission.create({
+            fullName, email, phone, housingType, hasOtherPets, hasChildren,
+            livesWithAdults, ageRange, department, city, petPreference, reasonForAdoption,
+            user: userId,
+            status: 'pendiente',
+        });
+        return NextResponse.json({ item: newSubmission }, { status: 201 });
+    } catch (error) {
+        console.error('Error creating form submission:', error);
+        return NextResponse.json({ message: 'Error al crear la entrada del formulario.' }, { status: 500 });
+    }
+}
+
+export async function GET(req: Request) {
+    await dbConnect();
+    const adminError = await adminMiddleware(req);
+    if (adminError) {
+        return adminError;
+    }
+
+    try {
+        const submissions = await AdopterFormSubmission.find()
+            .populate('user', 'name email')
+            .sort({ createdAt: -1 });
+        return NextResponse.json({ items: submissions });
+    } catch (error) {
+        console.error('Error fetching form submissions:', error);
+        return NextResponse.json({ message: 'Error al cargar las entradas del formulario.' }, { status: 500 });
+    }
+}
